@@ -551,7 +551,8 @@ ats_transform_one(TransformCtx * ctx, TSIOBufferReader upstream_reader, int amou
     if (upstream_length > amount) {
       upstream_length = amount;
     }
-
+    
+    TSDebug("ats-speed", "transform!");
     // TODO(oschaaf): use at least the message handler from the server conrtext here?
     if (ctx->inflater == NULL) {
       ctx->proxy_fetch->Write(StringPiece((char*)upstream_buffer, upstream_length), ats_process_context->message_handler());
@@ -571,7 +572,7 @@ ats_transform_one(TransformCtx * ctx, TSIOBufferReader upstream_reader, int amou
         }
       }
     }
-
+    //ctx->proxy_fetch->Flush(NULL);
     TSIOBufferReaderConsume(upstream_reader, upstream_length);
     amount -= upstream_length;
   }
