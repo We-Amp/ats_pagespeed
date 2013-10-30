@@ -500,8 +500,8 @@ ats_transform_init(TSCont contp, TransformCtx * ctx)
   driver->SetRequestHeaders(*request_headers);
   
   if (ctx->to_host->size()) { 
-    const char* xhost = ctx->gurl->HostAndPort().as_string().c_str();
-    net_instaweb::AtsBaseTagFilter *base_tag_filter = new net_instaweb::AtsBaseTagFilter(driver);
+    StringPiece xhost = ctx->gurl->HostAndPort();
+    net_instaweb::AtsBaseTagFilter* base_tag_filter = new net_instaweb::AtsBaseTagFilter(driver);
     base_tag_filter->set_domains(xhost, ctx->to_host->c_str());
     driver->AddOwnedEarlyPreRenderFilter(base_tag_filter);
   }
