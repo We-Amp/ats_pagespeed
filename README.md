@@ -22,6 +22,7 @@ up immediately. A sample configuration:
 [192.168.185.185]
 # Force traffic server to cache all origin responses
 override_expiry
+pagespeed FlushHtml on
 pagespeed RewriteLevel CoreFilters
 pagespeed EnableFilters rewrite_domains,trim_urls
 pagespeed MapRewriteDomain http://192.168.185.185 http://www.foo.com
