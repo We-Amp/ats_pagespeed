@@ -77,6 +77,8 @@ namespace net_instaweb {
     system_options->set_lru_cache_byte_limit(163840);
     system_options->set_lru_cache_kb_per_process(1024*500);//500 MB
 
+    system_options->set_flush_html(true);
+    
     AtsRewriteOptions* ats_options = (AtsRewriteOptions*)system_options;
     std::vector<std::string> args;
     args.push_back("RateLimitBackgroundFetches");
