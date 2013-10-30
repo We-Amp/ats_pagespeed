@@ -40,14 +40,12 @@ AtsBaseFetch::AtsBaseFetch(AtsServerContext* server_context,
   downstream_buffer_(downstream_buffer),
   is_resource_fetch_(is_resource_fetch),
   downstream_length_(0),
-  mutex_(server_context->thread_system()->NewMutex()) {
+  txn_mutex_(TSVIOMutexGet(downstream_vio)) {
   buffer_.reserve(1024 * 32);
 }
 
 AtsBaseFetch::~AtsBaseFetch() {
   CHECK(references_ == 0);
-  delete mutex_;
-  mutex_ = NULL;
 }
 
 void AtsBaseFetch::Release() {
@@ -55,22 +53,20 @@ void AtsBaseFetch::Release() {
 }
 
 void AtsBaseFetch::Lock(){
-  mutex_->Lock();
+  TSMutexLock(txn_mutex_);
 }
 
 void AtsBaseFetch::Unlock() {
-  mutex_->Unlock();
+  TSMutexUnlock(txn_mutex_);
 }
 
 bool AtsBaseFetch::HandleWrite(const StringPiece& sp, net_instaweb::MessageHandler* handler) {
-  buffer_.append(sp.data(), sp.size());
+  ForwardData(sp, false);
   return true;
 }
 
 bool AtsBaseFetch::HandleFlush( net_instaweb::MessageHandler* handler ) {
-  // TODO(oschaaf): We should definitely support this.
-  // Currently, we will loose to much time on sending the first bytes.
-  // Even worse, the time lost will grow as the document size increases.
+  ForwardData("", false);
   return true;
 }
 
@@ -78,44 +74,7 @@ void AtsBaseFetch::HandleHeadersComplete() {
   // oschaaf: ATS will currently send its response headers
   // earlier than this will fire. So this has become a no-op.
   // This implies that we can't support convert_meta_tags
-}
-
-void AtsBaseFetch::ForwardData() {
-  // TODO(oschaaf): determine if this consumes too much memory.
-  // TODO(oschaaf): alternatively, it might be possible to write to the
-  // vconn output buffer directly if we could use the TSMutex from the txn.
-  // That way, we might be able to prevent buffering/copying.
-  Lock();
-  GoogleString tmp = buffer_;
-  buffer_.clear();
-  Unlock();
-
-  TSIOBufferBlock downstream_blkp;
-  char *downstream_buffer;
-  int64_t downstream_length;
-  int64_t to_write = tmp.size();
-
-  while (to_write > 0) {
-    downstream_blkp = TSIOBufferStart(downstream_buffer_);
-    downstream_buffer = TSIOBufferBlockWriteStart(downstream_blkp, &downstream_length);
-    int64_t bytes_written = to_write > downstream_length ? downstream_length : to_write;
-    memcpy(downstream_buffer, tmp.data() + (tmp.size() - to_write), bytes_written);
-    to_write -= bytes_written;
-    downstream_length_ += bytes_written;
-    TSIOBufferProduce(downstream_buffer_, bytes_written);
-  }
-
-  CHECK(to_write == 0) << "to_write failure";
-}
-
-void AtsBaseFetch::HandleDone(bool success) {
-  CHECK(!done_called_);
-  CHECK(downstream_vio_);
-
-  Lock();
-  done_called_ = true;
-  Unlock();
-
+  TSDebug("ats-speed", "HeadersComplete()!");
   // For resource fetches, we need to output the headers in raw HTTP format.
   if (is_resource_fetch_) {
     GoogleMessageHandler mh;
@@ -123,19 +82,48 @@ void AtsBaseFetch::HandleDone(bool success) {
     StringWriter string_writer(&s);
     response_headers()->Add("Connection", "Close");
     response_headers()->WriteAsHttp(&string_writer, &mh);
-    buffer_.insert(0, s);
-  } else {
-    // TODO(oschaaf): iispeed increments 404 stats here. 
+    ForwardData(StringPiece(s.data(),s.size()), false);
   }
+}
 
-  // TODO(oschaaf): XXX, think this through, is there a possible race?
-  if (DecrefAndDeleteIfUnreferenced()) {
-    return;
+void AtsBaseFetch::ForwardData(const StringPiece& sp, bool last) {
+  TSIOBufferBlock downstream_blkp;
+  char *downstream_buffer;
+  int64_t downstream_length;
+  int64_t to_write = sp.size();
+
+  Lock();
+  if (references_ == 2) {
+    while (to_write > 0) {
+      downstream_blkp = TSIOBufferStart(downstream_buffer_);
+      downstream_buffer = TSIOBufferBlockWriteStart(downstream_blkp, &downstream_length);
+      int64_t bytes_written = to_write > downstream_length ? downstream_length : to_write;
+      memcpy(downstream_buffer, sp.data() + (sp.size() - to_write), bytes_written);
+      to_write -= bytes_written;
+      downstream_length_ += bytes_written;
+      TSIOBufferProduce(downstream_buffer_, bytes_written);
+    }
+    CHECK(to_write == 0) << "to_write failure";
+    if (last) {
+      TSVIONBytesSet(downstream_vio_, downstream_length_);
+    }
+    
+    TSVIOReenable(downstream_vio_);
   }
+  Unlock();
+  
+}
 
-  ForwardData();
-  TSVIONBytesSet(downstream_vio_, downstream_length_);
-  TSVIOReenable(downstream_vio_);
+void AtsBaseFetch::HandleDone(bool success) {
+  CHECK(!done_called_);
+  CHECK(downstream_vio_);
+  TSDebug("ats-speed", "Done()!");
+
+  Lock();
+  done_called_ = true;
+  ForwardData("", true);
+  DecrefAndDeleteIfUnreferenced();
+  Unlock();
 }
 
 bool AtsBaseFetch::DecrefAndDeleteIfUnreferenced() {

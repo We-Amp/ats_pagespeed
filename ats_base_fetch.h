@@ -56,7 +56,7 @@ private:
   void Lock();
   void Unlock();
   bool DecrefAndDeleteIfUnreferenced();
-  void ForwardData();
+  void ForwardData(const StringPiece& sp, bool last);
   GoogleString buffer_;
   AtsServerContext* server_context_;
   bool done_called_;
@@ -70,8 +70,8 @@ private:
   bool is_resource_fetch_;
   int64_t downstream_length_;
 
-  AbstractMutex* mutex_;
-  //TSMutex mutex_;
+  // We don't own this mutex
+  TSMutex txn_mutex_;
 };
 
 } /* ats_pagespeed */
