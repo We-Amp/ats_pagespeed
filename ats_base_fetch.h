@@ -55,8 +55,8 @@ private:
   virtual void HandleDone(bool success);
   void Lock();
   void Unlock();
-  bool DecrefAndDeleteIfUnreferenced();
-  void ForwardData(const StringPiece& sp, bool last);
+  void DecrefAndDeleteIfUnreferenced();
+  void ForwardData(const StringPiece& sp, bool reenable, bool last);
   GoogleString buffer_;
   AtsServerContext* server_context_;
   bool done_called_;

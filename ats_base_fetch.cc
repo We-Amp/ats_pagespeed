@@ -48,6 +48,8 @@ AtsBaseFetch::~AtsBaseFetch() {
   CHECK(references_ == 0);
 }
 
+// Should be called from the event loop,
+// and thus with the txn mutex held by ATS
 void AtsBaseFetch::Release() {
   DecrefAndDeleteIfUnreferenced();
 }
@@ -61,12 +63,12 @@ void AtsBaseFetch::Unlock() {
 }
 
 bool AtsBaseFetch::HandleWrite(const StringPiece& sp, net_instaweb::MessageHandler* handler) {
-  ForwardData(sp, false);
+  ForwardData(sp, false, false);
   return true;
 }
 
 bool AtsBaseFetch::HandleFlush( net_instaweb::MessageHandler* handler ) {
-  ForwardData("", false);
+  ForwardData("", true, false);
   return true;
 }
 
@@ -82,11 +84,11 @@ void AtsBaseFetch::HandleHeadersComplete() {
     StringWriter string_writer(&s);
     response_headers()->Add("Connection", "Close");
     response_headers()->WriteAsHttp(&string_writer, &mh);
-    ForwardData(StringPiece(s.data(),s.size()), false);
+    ForwardData(StringPiece(s.data(),s.size()), true, false);
   }
 }
 
-void AtsBaseFetch::ForwardData(const StringPiece& sp, bool last) {
+void AtsBaseFetch::ForwardData(const StringPiece& sp, bool reenable, bool last) {
   TSIOBufferBlock downstream_blkp;
   char *downstream_buffer;
   int64_t downstream_length;
@@ -107,11 +109,11 @@ void AtsBaseFetch::ForwardData(const StringPiece& sp, bool last) {
     if (last) {
       TSVIONBytesSet(downstream_vio_, downstream_length_);
     }
-    
-    TSVIOReenable(downstream_vio_);
+    if (reenable) { 
+      TSVIOReenable(downstream_vio_);
+    }
   }
   Unlock();
-  
 }
 
 void AtsBaseFetch::HandleDone(bool success) {
@@ -121,15 +123,13 @@ void AtsBaseFetch::HandleDone(bool success) {
 
   Lock();
   done_called_ = true;
-  ForwardData("", true);
+  ForwardData("", true, true);
   DecrefAndDeleteIfUnreferenced();
   Unlock();
 }
 
-bool AtsBaseFetch::DecrefAndDeleteIfUnreferenced() {
+void AtsBaseFetch::DecrefAndDeleteIfUnreferenced() {
   if (__sync_add_and_fetch(&references_, -1) == 0) {
     delete this;
-    return true;
   }
-  return false;
 }
