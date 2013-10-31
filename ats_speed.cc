@@ -820,6 +820,8 @@ transform_plugin(TSCont contp, TSEvent event, void *edata)
   
     if (TSHttpTxnServerReqGet(txn, &request_header_buf, &request_header_loc) == TS_SUCCESS) {
       hide_accept_encoding(request_header_buf, request_header_loc, "@xxAccept-Encoding");
+      // Turn off pagespeed optimization at the origin
+      set_header(request_header_buf, request_header_loc, "PageSpeed", "off");
       TSHandleMLocRelease(request_header_buf, TS_NULL_MLOC, request_header_loc);
     } else {
       CHECK(false) << "Could not find server request header";
