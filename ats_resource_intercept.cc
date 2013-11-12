@@ -270,7 +270,11 @@ read_cache_header_callback(TSCont cont, TSEvent event, void *edata)
   const char* error_message = NULL;
   StringPiece request_uri_path = ctx->gurl->PathAndLeaf();  
   
-  if (ctx->gurl->PathSansQuery() == "/pagespeed_message") {    
+  if (ctx->gurl->PathSansQuery() == "/robots.txt") {
+    content_type = kContentTypeText;
+    writer.Write("User-agent: *\n", server_context->message_handler());
+    writer.Write("Disallow: /\n", server_context->message_handler());
+  } else if (ctx->gurl->PathSansQuery() == "/pagespeed_message") {    
     // TODO(oschaaf)... let's wait for a bit with this one.
   } else if (ctx->gurl->PathSansQuery() == "/pagespeed_statistics" || ctx->gurl->PathSansQuery() == "/pagespeed_global_statistics") {
     error_message = StatisticsHandler(

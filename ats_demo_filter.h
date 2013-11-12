@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // Author: oschaaf@we-amp.com (Otto van der Schaaf)
-#ifndef ATS_BASE_TAG_FILTER_H_
-#define ATS_BASE_TAG_FILTER_H_
+#ifndef ATS_DEMO_FILTER_H_
+#define ATS_DEMO_FILTER_H_
 
 #include "base/basictypes.h"
 #include "base/string_piece.h"
@@ -27,13 +27,17 @@
 using base::StringPiece;
 
 namespace net_instaweb {
+
+
   
-  class AtsBaseTagFilter : public EmptyHtmlFilter {
-  public:
-    explicit AtsBaseTagFilter(HtmlParse* parser);
+  class AtsDemoFilter : public EmptyHtmlFilter {
+ public:
+    static const char* kPoweredByHtml;
+
+    explicit AtsDemoFilter(HtmlParse* parser, bool banner);
     virtual void StartElement(HtmlElement* element);
-    virtual const char* Name() const { return "AtsBaseTag"; }
-    // TODO: move to constructor?!
+    virtual const char* Name() const { return "AtsDemo"; }
+    // TODO: move to constructor
     void set_domains(const StringPiece& to_domain, const StringPiece& from_domain) 
     { 
       to_domain.CopyToString(&to_domain_); 
@@ -44,10 +48,10 @@ namespace net_instaweb {
     std::string to_domain_;
     std::string from_domain_;
     HtmlParse* parser_;
-
-    DISALLOW_COPY_AND_ASSIGN(AtsBaseTagFilter);
+    bool banner_;
+    DISALLOW_COPY_AND_ASSIGN(AtsDemoFilter);
   };
 
 }  // namespace net_instaweb
 
-#endif  // ATS_BASE_TAG_FILTER_H_
+#endif  // ATS_DEMO_FILTER_H_

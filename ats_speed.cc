@@ -32,8 +32,8 @@
 
 #include "ats_speed.h"
 
-#include "ats_base_tag_filter.h"
 #include "ats_config.h"
+#include "ats_demo_filter.h"
 #include "ats_header_utils.h"
 #include "ats_rewrite_options.h"
 #include "ats_log_message_handler.h"
@@ -501,7 +501,7 @@ ats_transform_init(TSCont contp, TransformCtx * ctx)
   
   if (ctx->to_host->size()) { 
     StringPiece xhost = ctx->gurl->HostAndPort();
-    net_instaweb::AtsBaseTagFilter* base_tag_filter = new net_instaweb::AtsBaseTagFilter(driver);
+    net_instaweb::AtsDemoFilter* base_tag_filter = new net_instaweb::AtsDemoFilter(driver, true);
     base_tag_filter->set_domains(xhost, ctx->to_host->c_str());
     driver->AddOwnedEarlyPreRenderFilter(base_tag_filter);
   }
@@ -745,6 +745,7 @@ handle_read_request_header(TSHttpTxn txnp) {
                  || ctx->gurl->PathSansQuery() == "/pagespeed_global_statistics"
                  || ctx->gurl->PathSansQuery() == "/pagespeed_console"
                  || ctx->gurl->PathSansLeaf() == "/ats_speed_static/"
+                 || ctx->gurl->PathSansQuery() == "/robots.txt"
                  ) {
           ctx->resource_request = true;
           TSHttpTxnArgSet(txnp, TXN_INDEX_OWNED_ARG, &TXN_INDEX_OWNED_ARG_UNSET);
