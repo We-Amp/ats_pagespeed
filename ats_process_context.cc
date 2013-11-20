@@ -15,6 +15,8 @@
 // Author: oschaaf@we-amp.com (Otto van der Schaaf)
 #include "ats_process_context.h"
 
+#include <vector>
+
 #include "ats_rewrite_driver_factory.h"
 #include "ats_server_context.h"
 #include "ats_message_handler.h"
@@ -42,9 +44,24 @@ AtsProcessContext::AtsProcessContext() {
 
   message_handler_->Message(kInfo,"global default options:\r\n[%s]",driver_factory_->default_options()->OptionsToString().c_str());
   message_handler_->Message(kInfo,"server ctx default options:\r\n[%s]",server_context_->global_options()->OptionsToString().c_str());
-  Statistics* statistics =
-      driver_factory_->MakeGlobalSharedMemStatistics(*(SystemRewriteOptions*)server_context_->global_options());
-  AtsRewriteDriverFactory::InitStats(statistics);
+  std::vector<SystemServerContext*> server_contexts;
+  server_contexts.push_back(server_context_);
+  
+  //Statistics* statistics =
+  //    driver_factory_->MakeGlobalSharedMemStatistics(*(SystemRewriteOptions*)server_context_->global_options());
+  GoogleString error_message;
+  int error_index = -1;
+  Statistics* global_statistics = NULL;
+  driver_factory_.get()->PostConfig(
+      server_contexts, &error_message, &error_index, &global_statistics);
+  if (error_index != -1) {
+     server_contexts[error_index]->message_handler()->Message(
+         kError, "ngx_pagespeed is enabled. %s", error_message.c_str());
+     //return NGX_ERROR;
+     CHECK(false);
+  }
+  
+  AtsRewriteDriverFactory::InitStats(global_statistics);
     
   driver_factory()->RootInit();
   driver_factory()->ChildInit();
