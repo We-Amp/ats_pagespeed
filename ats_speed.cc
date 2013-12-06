@@ -398,6 +398,44 @@ AtsRewriteOptions* get_host_options(const StringPiece& host) {
   return r;
 }
 
+
+static bool
+get_pristine_host(TSHttpTxn txnp, std::string &host)
+{
+  TSMBuffer bufp;  
+  TSMLoc hdr_loc,purl_loc;
+  const char * pristine_host;
+  int pristine_host_len = 0;
+  int pristine_port;
+  bool ok = true;
+  if (TSHttpTxnClientReqGet(txnp, &bufp, &hdr_loc) == TS_SUCCESS) {
+    if (TSHttpTxnPristineUrlGet(txnp, &bufp, &purl_loc) == TS_SUCCESS) {
+      pristine_host = TSUrlHostGet(bufp, purl_loc, &pristine_host_len);
+      if (pristine_host_len > 0) {      
+        pristine_port = TSUrlPortGet(bufp, purl_loc);
+        host = std::string(pristine_host, pristine_host_len);
+        if (pristine_port != 80) {
+          char buf[12];
+          if (sprintf(buf, ":%d", pristine_port)) {
+            host.append(buf);
+          } else {
+            ok =false;
+          }
+        }
+      } else {
+        ok = false;
+      }
+    } else {
+      ok = false;
+    }
+    TSHandleMLocRelease(bufp, TS_NULL_MLOC, hdr_loc);
+  } else  {
+    ok = false;
+  }
+  
+  return ok;
+}
+
 std::string get_remapped_host(TSHttpTxn txn) {
   TSMBuffer server_req_buf;
   TSMLoc server_req_loc;
@@ -737,7 +775,7 @@ handle_read_request_header(TSHttpTxn txnp) {
                  || ctx->gurl->PathSansQuery() == "/pagespeed_global_statistics"
                  || ctx->gurl->PathSansQuery() == "/pagespeed_console"
                  || ctx->gurl->PathSansLeaf() == "/ats_speed_static/"
-                 || ctx->gurl->PathSansQuery() == "/robots.txt"
+                 || (ctx->gurl->PathSansQuery() == "/robots.txt" && ctx->gurl->Host().as_string() != "www.atsspeed.com")
                  ) {
           ctx->resource_request = true;
           TSHttpTxnArgSet(txnp, TXN_INDEX_OWNED_ARG, &TXN_INDEX_OWNED_ARG_UNSET);
@@ -903,6 +941,19 @@ transform_plugin(TSCont contp, TSEvent event, void *edata)
 
   TSHttpStatus status = TSHttpHdrStatusGet(response_header_buf, response_header_loc);
   if (ok) {
+    if (status >= 300 && status < 400)
+    {
+      StringPiece location = get_header(response_header_buf, response_header_loc, "Location");
+      // TODO: can get_header return NULL?
+      GoogleString s_loc = location.as_string();
+      std::string from_host;
+      if (get_pristine_host(txn,from_host)) {
+        GlobalReplaceSubstring(ctx->to_host->c_str(), from_host.c_str(), &s_loc);
+        GlobalReplaceSubstring("https://", "http://", &s_loc);        
+        set_header(response_header_buf,response_header_loc,"Location",s_loc.c_str());
+        TSDebug("ats_speed", "Rewrite location [%s]->[%s] (from_host: [%s])", location.as_string().c_str(), s_loc.c_str(), from_host.c_str());
+      }
+    }
     if (!(status == TS_HTTP_STATUS_OK || status == TS_HTTP_STATUS_NOT_FOUND)) {
       ok = false;
       TSHttpTxnReenable(txn, TS_EVENT_HTTP_CONTINUE);

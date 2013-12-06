@@ -64,10 +64,11 @@ void AtsDemoFilter::StartElement(HtmlElement* element) {
           GoogleUrl url( attribute_value );
           if (url.IsWebValid()) {
             if (url.Host() == from_domain_) {
-              StringPiece scheme = url.Scheme();
+              //StringPiece scheme = url.Scheme();
               StringPiece host = to_domain_.c_str();
               StringPiece pathAndQuery = url.PathAndLeaf();
-              GoogleString rewritten = StrCat(scheme,"://", host, pathAndQuery);
+              // TODO(oschaaf): scheme. when we have a wildcard
+              GoogleString rewritten = StrCat("http","://", host, pathAndQuery);
               attribute.SetValue(rewritten.c_str());
               break;
             }
