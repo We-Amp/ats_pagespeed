@@ -18,13 +18,14 @@
 
 #include <signal.h>
 
-#include "apr_time.h"
-
 #include "net/instaweb/util/public/abstract_mutex.h"
 #include "net/instaweb/util/public/debug.h"
 #include "net/instaweb/util/public/shared_circular_buffer.h"
 #include "net/instaweb/util/public/string_util.h"
 #include "net/instaweb/public/version.h"
+#include "pagespeed/kernel/base/posix_timer.h"
+#include "pagespeed/kernel/base/time_util.h"
+   
 
 namespace {
 
@@ -66,12 +67,12 @@ void AtsMessageHandler::MessageVImpl(MessageType type, const char* msg,
   // Prepend time and severity to message.
   // Format is [time] [severity] [pid] message.
   GoogleString message;
-  char time_buffer[APR_CTIME_LEN + 1];
-  const char* time = time_buffer;
-  apr_status_t status = apr_ctime(time_buffer, apr_time_now());
-  if (status != APR_SUCCESS) {
+  GoogleString time;
+  PosixTimer timer;
+  if (!ConvertTimeToString(timer.NowMs(), &time)) {
     time = "?";
   }
+  
   StrAppend(&message, "[", time, "] ",
             "[", MessageTypeToString(type), "] ");
   StrAppend(&message, pid_string_, " ", formatted_message, "\n");
