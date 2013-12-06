@@ -50,7 +50,6 @@
 #include "ats_rewrite_options.h"
 #include "ats_server_context.h"
 
-#include "apr_time.h"
 #include "net/instaweb/rewriter/public/rewrite_stats.h"
 #include "net/instaweb/system/public/in_place_resource_recorder.h"
 
