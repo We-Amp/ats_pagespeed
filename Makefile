@@ -1,9 +1,10 @@
 TSXS?=tsxs
 BUILDTYPE=Release
-MOD_PAGESPEED_DIR=$(HOME)/code/google/mod_pagespeed/src/
-PAGESPEED_OUT=$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/
 
-INC  = -I$(MOD_PAGESPEED_DIR)\
+MOD_PAGESPEED_DIR=$(shell pwd)/psol/include/
+PAGESPEED_OUT=$(shell pwd)/psol/lib/Release/linux/x64/
+
+INC =-I$(MOD_PAGESPEED_DIR)\
  -I$(MOD_PAGESPEED_DIR)third_party/chromium/src/\
  -I$(MOD_PAGESPEED_DIR)third_party/google-sparsehash/src\
  -I$(MOD_PAGESPEED_DIR)third_party/google-sparsehash/gen/arch/linux/x64/include\
@@ -14,10 +15,10 @@ INC  = -I$(MOD_PAGESPEED_DIR)\
  -I$(MOD_PAGESPEED_DIR)third_party/aprutil/src/include/\
  -I$(MOD_PAGESPEED_DIR)third_party/apr/gen/arch/linux/x64/include/\
  -I$(MOD_PAGESPEED_DIR)third_party/aprutil/gen/arch/linux/x64/include/\
- -I$(PAGESPEED_OUT)obj/gen/\
- -I$(PAGESPEED_OUT)obj/gen/protoc_out/instaweb/
+ -I$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/obj/gen\
+ -I$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/obj/gen/protoc_out/instaweb
 
-PSOL_LIBS = $(MOD_PAGESPEED_DIR)net/instaweb/automatic/pagespeed_automatic.a
+PSOL_LIBS = $(PAGESPEED_OUT)pagespeed_automatic.a
 
 %.so: %.cc
 	g++ $(INC) -shared -o ats_speed.so -g -pipe -Wall -Werror -O3 -fpic *.cc -lstdc++  -lpthread -lrt $(PSOL_LIBS)
