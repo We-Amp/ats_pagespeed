@@ -6,7 +6,8 @@ Apache Traffic Server web content optimization plugin powered by Google PageSpee
 http://www.atsspeed.com/
 
 
-To build, a simple 'make' should work. Use 'make install' to install.
+To build, a simple 'make' should work. Use 'sudo make install' to install.
+
 After that, update ATS's plugin.config with:
 ```
 ats_speed.so                                                                                 

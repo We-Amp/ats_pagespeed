@@ -4,6 +4,8 @@ BUILDTYPE=Release
 MOD_PAGESPEED_DIR=$(shell pwd)/psol/include/
 PAGESPEED_OUT=$(shell pwd)/psol/lib/Release/linux/x64/
 
+$(shell gunzip $(PAGESPEED_OUT)pagespeed_automatic.a.gz) ;  \
+
 INC =-I$(MOD_PAGESPEED_DIR)\
  -I$(MOD_PAGESPEED_DIR)third_party/chromium/src/\
  -I$(MOD_PAGESPEED_DIR)third_party/google-sparsehash/src\
@@ -28,7 +30,7 @@ all: gzip/gzip.so ats_speed.so
 install: all
 	$(TSXS) -i -o ats_speed.so 
 	cp gzip/gzip.so ./
-	$(TSXS) -i -o zip.so 
+	$(TSXS) -i -o gzip.so 
 
 clean:
 	rm -f *.lo *.so *.o
