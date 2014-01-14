@@ -20,6 +20,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  */
+#define __STDC_LIMIT_MACROS
+#define __STDC_CONSTANT_MACROS
+#include <stdint.h>
 
 #include <string>
 #include <string.h>
@@ -28,8 +31,7 @@
 #include "debug_macros.h"
 #include "misc.h"
 #include "configuration.h"
-
-#include "ink_defs.h"
+//#include "ink_defs.h"
 
 using namespace std;
 using namespace Gzip;

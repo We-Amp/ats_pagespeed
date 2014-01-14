@@ -32,6 +32,8 @@ all: psol gzip/gzip.so ats_speed.so
 psol/: 1.7.30.2.tar.gz
 	tar -xzvf 1.7.30.2.tar.gz
 
+gzip/gzip.so:
+	cd gzip && make
 
 install: all
 	$(TSXS) -i -o ats_speed.so
@@ -44,3 +46,4 @@ cleanpsol:
 
 clean:
 	rm -f *.lo *.so *.o
+	rm -f gzip/*.lo gzip/*.so gzip/*.o
