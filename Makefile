@@ -1,10 +1,9 @@
+SHELL := /bin/bash
 TSXS?=tsxs
 BUILDTYPE=Release
 
 MOD_PAGESPEED_DIR=$(shell pwd)/psol/include/
 PAGESPEED_OUT=$(shell pwd)/psol/lib/Release/linux/x64/
-
-$(shell gunzip $(PAGESPEED_OUT)pagespeed_automatic.a.gz) ;  \
 
 INC =-I$(MOD_PAGESPEED_DIR)\
  -I$(MOD_PAGESPEED_DIR)third_party/chromium/src/\
@@ -22,15 +21,26 @@ INC =-I$(MOD_PAGESPEED_DIR)\
 
 PSOL_LIBS = $(PAGESPEED_OUT)pagespeed_automatic.a
 
-%.so: %.cc
+%.so: psol %.cc
 	g++ $(INC) -shared -o ats_speed.so -g -pipe -Wall -Werror -O3 -fpic *.cc -lstdc++  -lpthread -lrt $(PSOL_LIBS)
 
-all: gzip/gzip.so ats_speed.so
+all: psol gzip/gzip.so ats_speed.so
+
+1.7.30.2.tar.gz:
+	wget https://dl.google.com/dl/page-speed/psol/1.7.30.2.tar.gz
+
+psol/: 1.7.30.2.tar.gz
+	tar -xzvf 1.7.30.2.tar.gz
+
 
 install: all
-	$(TSXS) -i -o ats_speed.so 
+	$(TSXS) -i -o ats_speed.so
 	cp gzip/gzip.so ./
-	$(TSXS) -i -o gzip.so 
+	$(TSXS) -i -o gzip.so
+
+cleanpsol:
+	rm -rf psol/
+	rm *.gz
 
 clean:
 	rm -f *.lo *.so *.o
