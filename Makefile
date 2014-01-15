@@ -19,10 +19,10 @@ INC =-I$(MOD_PAGESPEED_DIR)\
  -I$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/obj/gen\
  -I$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/obj/gen/protoc_out/instaweb
 
-PSOL_LIBS = $(PAGESPEED_OUT)pagespeed_automatic.a
+PSOL_LIBS = $(PAGESPEED_OUT)pagespeed_automatic.a $(PAGESPEED_OUT)libserf.a $(PAGESPEED_OUT)libaprutil.a $(PAGESPEED_OUT)libapr.a
 
 %.so: psol %.cc
-	g++ $(INC) -shared -o ats_speed.so -g -pipe -Wall -Werror -O3 -fpic *.cc -lstdc++  -lpthread -lrt $(PSOL_LIBS)
+	g++ $(INC) -shared -o ats_speed.so -g -pipe -Wall -Werror -O3 -fpic $(MOD_PAGESPEED_DIR)/out/$(BUILDTYPE)/obj/gen/data2c_out/instaweb/net/instaweb/apache/install/mod_pagespeed_example/*.cc $(MOD_PAGESPEED_DIR)/net/instaweb/system/*.cc  *.cc -lstdc++ -lstdc++  -lpthread -lrt $(PSOL_LIBS)
 
 all: psol gzip/gzip.so ats_speed.so
 
@@ -32,11 +32,12 @@ all: psol gzip/gzip.so ats_speed.so
 psol/: 1.7.30.2.tar.gz
 	tar -xzvf 1.7.30.2.tar.gz
 
+gzip/gzip.so:
+	cd gzip && make
 
 install: all
 	$(TSXS) -i -o ats_speed.so
-	cp gzip/gzip.so ./
-	$(TSXS) -i -o gzip.so
+	cd gzip && make install
 
 cleanpsol:
 	rm -rf psol/
@@ -44,3 +45,4 @@ cleanpsol:
 
 clean:
 	rm -f *.lo *.so *.o
+	rm -f gzip/*.lo gzip/*.so gzip/*.o

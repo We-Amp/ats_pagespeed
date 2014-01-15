@@ -22,11 +22,11 @@
  */
 
 #include "ts/ts.h"
-#include "ink_defs.h"
-
+//#include "ink_defs.h"
+#include <stdint.h>
+#include <inttypes.h>
 #include "misc.h"
 #include <string.h>
-#include <inttypes.h>
 #include "debug_macros.h"
 
 voidpf
@@ -189,9 +189,9 @@ load_dictionary(const char *preload_file)
 void
 gzip_log_ratio(int64_t in, int64_t out)
 {
-  if (in) {
-    info("Compressed size %" PRId64" (bytes), Original size %" PRId64", ratio: %f", out, in, ((float) (in - out) / in));
-  } else {
-    debug("Compressed size %" PRId64" (bytes), Original size %" PRId64", ratio: %f", out, in, 0.0F);
-  }
+  //  if (in) {
+  //  info("Compressed size %PRId64 (bytes), Original size %" PRId64", ratio: %f", out, in, ((float) (in - out) / in));
+  //} else {
+  //  debug("Compressed size %PRId64 (bytes), Original size %" PRId64", ratio: %f", out, in, 0.0F);
+  // }
 }
