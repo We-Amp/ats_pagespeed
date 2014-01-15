@@ -37,8 +37,7 @@ gzip/gzip.so:
 
 install: all
 	$(TSXS) -i -o ats_speed.so
-	cp gzip/gzip.so ./
-	$(TSXS) -i -o gzip.so
+	cd gzip && make install
 
 cleanpsol:
 	rm -rf psol/

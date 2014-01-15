@@ -1,7 +1,9 @@
+TSXS?=tsxs
+
 all:
-	tsxs -C *.cc -o gzip.so
-install: gzip.so
-	tsxs -i -o gzip.so
+	$(TSXS) -o gzip.so -v -C *.cc
+install: 
+	$(TSXS) -v -i -o gzip.so
 clean:
 	rm -f *.lo *.so
 
