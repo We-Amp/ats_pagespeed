@@ -1,21 +1,39 @@
 SHELL := /bin/bash
 TSXS?=tsxs
-BUILDTYPE=Release
+# Specify BUILDTYPE=Debug for a debug build
+BUILDTYPE?=Release
 
 MOD_PAGESPEED_DIR=$(shell pwd)/psol/include/
-PAGESPEED_OUT=$(shell pwd)/psol/lib/Release/linux/x64/
+PAGESPEED_OUT=$(shell pwd)/psol/lib/$(BUILDTYPE)/linux/x64/
+
+
+os_name=unknown_os
+arch_name=ia32
+uname_os=$(shell uname)
+uname_arch=$(shell uname -m)
+
+ifeq ($(uname_os),Linux)
+  os_name=linux
+endif
+
+ifeq ($(uname_arch), x86_64)
+  arch_name=x64
+endif
+ifeq ($(uname_arch), amd64)
+  arch_name=x64
+endif
 
 INC =-I$(MOD_PAGESPEED_DIR)\
  -I$(MOD_PAGESPEED_DIR)third_party/chromium/src/\
  -I$(MOD_PAGESPEED_DIR)third_party/google-sparsehash/src\
- -I$(MOD_PAGESPEED_DIR)third_party/google-sparsehash/gen/arch/linux/x64/include\
+ -I$(MOD_PAGESPEED_DIR)third_party/google-sparsehash/gen/arch/$(os_name)/$(arch_name)/include\
  -I$(MOD_PAGESPEED_DIR)third_party/protobuf/src\
  -I$(MOD_PAGESPEED_DIR)third_party/re2/src\
  -I$(MOD_PAGESPEED_DIR)third_party/out/$(BUILDTYPE)/obj/gen\
  -I$(MOD_PAGESPEED_DIR)third_party/apr/src/include/\
  -I$(MOD_PAGESPEED_DIR)third_party/aprutil/src/include/\
- -I$(MOD_PAGESPEED_DIR)third_party/apr/gen/arch/linux/x64/include/\
- -I$(MOD_PAGESPEED_DIR)third_party/aprutil/gen/arch/linux/x64/include/\
+ -I$(MOD_PAGESPEED_DIR)third_party/apr/gen/arch/$(os_name)/$(arch_name)/include/\
+ -I$(MOD_PAGESPEED_DIR)third_party/aprutil/gen/arch/$(os_name)/$(arch_name)/include/\
  -I$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/obj/gen\
  -I$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/obj/gen/protoc_out/instaweb
 
