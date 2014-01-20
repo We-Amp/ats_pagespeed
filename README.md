@@ -45,8 +45,7 @@ It also expects this in records.config from ATS to function:
 
 You can view debug output of the plugin using `traffic_server -T ".*speed.*"`
 
-The current state compiles against mod_pagspeed svn revision 3537
+The current state compiles againstPSOL 1.7.30.3-beta
 Please note the this plugin will generate asserts when build against
 the debug version of mps (option->Merge from a different thread).
 
-Work in progress! This plugin is known to be working on ubuntu 12.x (x64)
