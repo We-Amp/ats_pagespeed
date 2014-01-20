@@ -26,11 +26,11 @@ PSOL_LIBS = $(PAGESPEED_OUT)pagespeed_automatic.a $(PAGESPEED_OUT)libserf.a $(PA
 
 all: psol gzip/gzip.so ats_speed.so
 
-1.7.30.2.tar.gz:
-	wget https://dl.google.com/dl/page-speed/psol/1.7.30.2.tar.gz
+1.7.30.3.tar.gz:
+	wget https://dl.google.com/dl/page-speed/psol/1.7.30.3.tar.gz
 
-psol/: 1.7.30.2.tar.gz
-	tar -xzvf 1.7.30.2.tar.gz
+psol/: 1.7.30.3.tar.gz
+	tar -xzvf 1.7.30.3.tar.gz
 
 gzip/gzip.so:
 	cd gzip && make
