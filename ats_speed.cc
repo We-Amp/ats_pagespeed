@@ -497,14 +497,7 @@ ats_transform_init(TSCont contp, TransformCtx * ctx)
   
   driver->SetUserAgent(ctx->user_agent->c_str());
   driver->SetRequestHeaders(*request_headers);
-  
-  if (ctx->to_host->size()) { 
-    StringPiece xhost = ctx->gurl->HostAndPort();
-    net_instaweb::AtsDemoFilter* base_tag_filter = new net_instaweb::AtsDemoFilter(driver, true);
-    base_tag_filter->set_domains(xhost, ctx->to_host->c_str());
-    driver->AddOwnedEarlyPreRenderFilter(base_tag_filter);
-  }
- 
+   
   bool page_callback_added = false;
   scoped_ptr<ProxyFetchPropertyCallbackCollector>
       property_callback(
