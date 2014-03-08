@@ -164,9 +164,11 @@ namespace Gzip {
     HostConfiguration * current_host_configuration = new HostConfiguration("");
     c->AddHostConfiguration(current_host_configuration);
     current_host_configuration->add_compressible_content_type("text/*");
-    current_host_configuration->add_compressible_content_type("*javascript");
     current_host_configuration->add_compressible_content_type("application/xml*");
+    current_host_configuration->add_compressible_content_type("*javascript*");
+    current_host_configuration->add_compressible_content_type("image/svg+xml");
 
+    
     if (pathstring.empty())  {
       return c;
     }
