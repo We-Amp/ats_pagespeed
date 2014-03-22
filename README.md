@@ -46,7 +46,7 @@ It also expects this in records.config from ATS to function:
 
 You can view debug output of the plugin using `traffic_server -T ".*speed.*"`
 
-The current state compiles against PSOL 1.7.30.3-beta.
+The current state compiles against PSOL 1.7.30.4-beta.
 Please note the this plugin will generate asserts when build against
 the debug version of mps (option->Merge from a different thread).
 

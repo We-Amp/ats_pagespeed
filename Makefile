@@ -2,7 +2,6 @@ SHELL := /bin/bash
 TSXS?=tsxs
 # Specify BUILDTYPE=Debug for a debug build
 BUILDTYPE?=Release
-
 MOD_PAGESPEED_DIR=$(shell pwd)/psol/include/
 PAGESPEED_OUT=$(shell pwd)/psol/lib/$(BUILDTYPE)/linux/x64/
 
@@ -40,15 +39,15 @@ INC =-I$(MOD_PAGESPEED_DIR)\
 PSOL_LIBS = $(PAGESPEED_OUT)pagespeed_automatic.a $(PAGESPEED_OUT)libserf.a $(PAGESPEED_OUT)libaprutil.a $(PAGESPEED_OUT)libapr.a
 
 %.so: psol %.cc
-	g++ $(INC) -shared -o ats_speed.so -g -pipe -Wall -Werror -O3 -fpic $(MOD_PAGESPEED_DIR)/out/$(BUILDTYPE)/obj/gen/data2c_out/instaweb/net/instaweb/apache/install/mod_pagespeed_example/*.cc $(MOD_PAGESPEED_DIR)/net/instaweb/system/*.cc  *.cc -lstdc++ -lstdc++  -lpthread -lrt $(PSOL_LIBS)
+	g++ $(INC) -shared -o ats_speed.so -g -pipe -Wall -Werror -O3 -fpic $(MOD_PAGESPEED_DIR)/out/$(BUILDTYPE)/obj/gen/data2c_out/instaweb/net/instaweb/apache/install/mod_pagespeed_example/*.cc $(MOD_PAGESPEED_DIR)/net/instaweb/system/*.cc  *.cc -lstdc++ -lstdc++  -lpthread $(PSOL_LIBS) -lrt
 
 all: psol gzip/gzip.so ats_speed.so
 
-1.7.30.3.tar.gz:
-	wget https://dl.google.com/dl/page-speed/psol/1.7.30.3.tar.gz
+1.7.30.4.tar.gz:
+	wget https://dl.google.com/dl/page-speed/psol/1.7.30.4.tar.gz
 
-psol/: 1.7.30.3.tar.gz
-	tar -xzvf 1.7.30.3.tar.gz
+psol/: 1.7.30.4.tar.gz
+	tar -xzvf 1.7.30.4.tar.gz
 
 gzip/gzip.so:
 	cd gzip && make
