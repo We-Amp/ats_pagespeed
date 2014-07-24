@@ -17,6 +17,7 @@
 #include "ats_message_handler.h"
 
 #include <signal.h>
+#include <unistd.h>
 
 #include "net/instaweb/util/public/abstract_mutex.h"
 #include "net/instaweb/util/public/debug.h"
