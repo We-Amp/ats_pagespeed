@@ -23,6 +23,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include <sys/inotify.h>
+#include <unistd.h>
 
 #include <ts/ts.h>
 
