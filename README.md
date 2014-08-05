@@ -5,6 +5,9 @@ Apache Traffic Server web content optimization plugin powered by Google PageSpee
 
 http://www.atsspeed.com/
 
+Sourcecode has moved over to Apache:
+https://github.com/apache/trafficserver/tree/master/plugins/experimental/ats_speed
+
 To build, a simple 'make' should work. Use 'sudo make install' to install.
 Optionally, patching ATS with ethread.patch helps with eliminating latency that 
 sometimes gets induced when synchronising ATS's and PSOL's thread pools.
