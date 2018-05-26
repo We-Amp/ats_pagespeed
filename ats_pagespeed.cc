@@ -796,11 +796,11 @@ const std::string get_txn_url(TSHttpTxn txnp)
     std::string s_url = std::string(url, url_length);
     TSfree((void *)url);
 
-    auto urlpos = s_url.find("/", 8);
+    unsigned int urlpos = s_url.find("/", 8);
     if (port!=0 && s_url.size() > 8 &&
         ((port != 443 && s_url.at(5) == ':') ||
          (port != 80 && s_url.at(4) == ':'))) {
-      std::string s_port = std::to_string(port);
+      std::string s_port = IntegerToString(port);
       if (urlpos != std::string::npos) {
         if (s_url.compare(urlpos - (s_port.length()), s_port.length(), s_port) != 0) {
           s_url = s_url.substr(0, urlpos) + ":" + s_port + s_url.substr(urlpos);
