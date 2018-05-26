@@ -38,11 +38,9 @@ INC =-I$(MOD_PAGESPEED_DIR)\
  -I$(MOD_PAGESPEED_DIR)url/
 
 PSOL_LIBS = $(PAGESPEED_OUT)pagespeed_automatic.a
-#$(PAGESPEED_OUT)libserf.a $(PAGESPEED_OUT)libaprutil.a $(PAGESPEED_OUT)libapr.a
 
-# na fpic $(MOD_PAGESPEED_DIR)/out/$(BUILDTYPE)/obj/gen/data2c_out/instaweb/net/instaweb/apache/install/mod_pagespeed_example/*.cc
 %.so: psol %.cc
-	g++ $(INC) -shared -o ats_pagespeed.so -g -pipe -Wall -Werror -O3 -fpic $(MOD_PAGESPEED_DIR)/pagespeed/system/*.cc  *.cc -lstdc++ -lstdc++  -lpthread $(PSOL_LIBS) -lrt
+	g++ $(INC) -shared -o ats_pagespeed.so -g -pipe -Wall -Werror -O3 -fpic  *.cc -lstdc++ -lstdc++  -lpthread $(PSOL_LIBS) -lrt
 
 all: psol gzip/gzip.so ats_pagespeed.so
 
