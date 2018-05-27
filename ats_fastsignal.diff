@@ -1,0 +1,13 @@
+diff --git a/iocore/eventsystem/I_EThread.h b/iocore/eventsystem/I_EThread.h
+index 83a10ab..d304fd0 100644
+--- a/iocore/eventsystem/I_EThread.h
++++ b/iocore/eventsystem/I_EThread.h
+@@ -308,7 +308,7 @@ public:
+   EThread(ThreadType att, Event *e);
+   virtual ~EThread();
+ 
+-  Event *schedule(Event *e, bool fast_signal = false);
++  Event *schedule(Event *e, bool fast_signal = true);
+ 
+   /** Block of memory to allocate thread specific data e.g. stat system arrays. */
+   char thread_private[PER_THREAD_DATA];
