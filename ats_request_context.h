@@ -21,7 +21,9 @@
     limitations under the License.
 */
 
-#pragma once
+#ifndef ATS_REQUEST_CONTEXT_H
+#define ATS_REQUEST_CONTEXT_H
+
 #include <pagespeed/system/system_request_context.h>
 #include <string>
 #include <ts/ts.h>
@@ -52,3 +54,5 @@ namespace net_instaweb
     TSHttpTxn _txn;
   };
 }
+
+#endif  // ATS_REQUEST_CONTEXT_H

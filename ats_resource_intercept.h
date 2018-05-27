@@ -35,8 +35,6 @@
 
 #include "ats_pagespeed.h"
 
-using namespace net_instaweb;
-
 struct InterceptCtx {
   TSVConn vconn;
   TSIOBuffer req_buffer;
@@ -45,7 +43,7 @@ struct InterceptCtx {
   TSIOBufferReader resp_reader;
   GoogleString *response;
   TransformCtx *request_ctx;
-  RequestHeaders *request_headers;
+  net_instaweb::RequestHeaders *request_headers;
 
   InterceptCtx()
     : vconn(NULL),

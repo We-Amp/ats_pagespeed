@@ -24,31 +24,31 @@ endif
 
 INC =-I$(MOD_PAGESPEED_DIR)\
  -I$(MOD_PAGESPEED_DIR)third_party/chromium/src/\
- -I$(MOD_PAGESPEED_DIR)third_party/google-sparsehash/src\
+ -I$(MOD_PAGESPEED_DIR)third_party/google-sparsehash/src/src\
  -I$(MOD_PAGESPEED_DIR)third_party/google-sparsehash/gen/arch/$(os_name)/$(arch_name)/include\
+ -I$(MOD_PAGESPEED_DIR)third_party/grpc/src/include\
  -I$(MOD_PAGESPEED_DIR)third_party/protobuf/src/src\
  -I$(MOD_PAGESPEED_DIR)third_party/re2/src\
- -I$(MOD_PAGESPEED_DIR)third_party/out/$(BUILDTYPE)/obj/gen\
+ -I$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/obj/gen\
+ -I$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/obj/gen/protoc_out/instaweb\
  -I$(MOD_PAGESPEED_DIR)third_party/apr/src/include/\
  -I$(MOD_PAGESPEED_DIR)third_party/aprutil/src/include/\
  -I$(MOD_PAGESPEED_DIR)third_party/apr/gen/arch/$(os_name)/$(arch_name)/include/\
  -I$(MOD_PAGESPEED_DIR)third_party/aprutil/gen/arch/$(os_name)/$(arch_name)/include/\
- -I$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/obj/gen\
- -I$(MOD_PAGESPEED_DIR)out/$(BUILDTYPE)/obj/gen/protoc_out/instaweb\
  -I$(MOD_PAGESPEED_DIR)url/
 
 PSOL_LIBS = $(PAGESPEED_OUT)pagespeed_automatic.a
 
 %.so: psol %.cc
-	g++ $(INC) -shared -o ats_pagespeed.so -g -pipe -Wall -Werror -O3 -fpic  *.cc -lstdc++ -lstdc++  -lpthread $(PSOL_LIBS) -lrt
+	g++ -D_GLIBCXX_USE_CXX11_ABI=0 --std=c++11  $(INC) -shared -o ats_pagespeed.so -g -pipe -Wall -Werror -O3 -fpic  *.cc -lstdc++ -lstdc++  -lpthread $(PSOL_LIBS) -lrt
 
 all: psol gzip/gzip.so ats_pagespeed.so
 
-1.11.33.4.tar.gz:
-	wget https://dl.google.com/dl/page-speed/psol/1.11.33.4.tar.gz
+1.13.35.2.tar.gz:
+	wget https://dl.google.com/dl/page-speed/psol/1.13.35.2-x64.tar.gz
 
-psol/: 1.11.33.4.tar.gz
-	tar -xzvf 1.11.33.4.tar.gz
+psol/:  1.13.35.2.tar.gz
+	tar -xzvf 1.13.35.2-x64.tar.gz
 
 gzip/gzip.so:
 	cd gzip && make
