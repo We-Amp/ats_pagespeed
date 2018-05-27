@@ -164,7 +164,7 @@ resource_intercept(TSCont cont, TSEvent event, void *edata)
 
       // The url we have here is already checked for IsWebValid()
       net_instaweb::ResourceFetch::Start(GoogleUrl(*intercept_ctx->request_ctx->url_string),
-                                         custom_options.release() /* null if there aren't custom options */, false /* using_spdy */,
+                                         custom_options.release() /* null if there aren't custom options */, 
                                          server_context, intercept_ctx->request_ctx->base_fetch);
     } else {
       int64_t numBytesToWrite, numBytesWritten;

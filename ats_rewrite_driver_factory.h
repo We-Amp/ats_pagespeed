@@ -26,27 +26,27 @@
 
 #include <set>
 
-#include "pagespeed/system/system_rewrite_driver_factory.h"
 #include "pagespeed/kernel/base/md5_hasher.h"
 #include "pagespeed/kernel/base/scoped_ptr.h"
+#include "pagespeed/system/system_rewrite_driver_factory.h"
 
 namespace net_instaweb
 {
-class AbstractSharedMem;
-// class NgxMessageHandler;
-// class NgxRewriteOptions;
 class AtsServerContext;
 class AtsThreadSystem;
-class GoogleMessageHandler;
-// class NgxUrlAsyncFetcher;
-class SharedCircularBuffer;
-class SharedMemRefererStatistics;
-class SharedMemStatistics;
-class SlowWorker;
-class StaticAssetManager;
+
+class FileSystem;
+class Hasher;
+class MessageHandler;
 class Statistics;
-class StaticAssetManager;
-// class SystemCaches;
+class Timer;
+class UrlAsyncFetcher;
+class UrlFetcher;
+class Writer;
+
+class SharedCircularBuffer;
+
+class GoogleMessageHandler;
 
 class AtsRewriteDriverFactory : public SystemRewriteDriverFactory
 {

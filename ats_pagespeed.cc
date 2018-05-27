@@ -43,9 +43,6 @@
 #include "ats_rewrite_options.h"
 #include "ats_log_message_handler.h"
 
-#include "base/logging.h"
-#include "pagespeed/kernel/http/response_headers.h"
-#include "pagespeed/kernel/base/string_util.h"
 
 #include "ats_base_fetch.h"
 #include "ats_resource_intercept.h"
@@ -57,33 +54,43 @@
 
 #include "ats_request_context.h"
 
-#include "net/instaweb/rewriter/public/rewrite_stats.h"
-#include "pagespeed/system/in_place_resource_recorder.h"
-
-#include "pagespeed/automatic/proxy_fetch.h"
-#include "pagespeed/kernel/http/content_type.h"
-#include "pagespeed/opt/http/request_context.h"
+#include "net/instaweb/http/public/async_fetch.h"
+#include "net/instaweb/http/public/cache_url_async_fetcher.h"
+#include "net/instaweb/http/public/request_context.h"
+#include "net/instaweb/public/global_constants.h"
+#include "net/instaweb/public/version.h"
 #include "net/instaweb/rewriter/public/experiment_matcher.h"
 #include "net/instaweb/rewriter/public/experiment_util.h"
 #include "net/instaweb/rewriter/public/process_context.h"
 #include "net/instaweb/rewriter/public/resource_fetch.h"
 #include "net/instaweb/rewriter/public/rewrite_driver.h"
+#include "net/instaweb/rewriter/public/rewrite_options.h"
 #include "net/instaweb/rewriter/public/rewrite_query.h"
+#include "net/instaweb/rewriter/public/rewrite_stats.h"
 #include "net/instaweb/rewriter/public/static_asset_manager.h"
-#include "net/instaweb/public/global_constants.h"
-#include "net/instaweb/public/version.h"
+#include "net/instaweb/util/public/fallback_property_page.h"
+#include "pagespeed/automatic/proxy_fetch.h"
 #include "pagespeed/kernel/base/google_message_handler.h"
-#include "pagespeed/kernel/http/google_url.h"
-#include "pagespeed/kernel/util/gzip_inflater.h"
-#include "pagespeed/kernel/http/query_params.h"
-#include "pagespeed/kernel/util/statistics_logger.h"
+#include "pagespeed/kernel/base/null_message_handler.h"
+#include "pagespeed/kernel/base/posix_timer.h"
+#include "pagespeed/kernel/base/stack_buffer.h"
 #include "pagespeed/kernel/base/stdio_file_system.h"
 #include "pagespeed/kernel/base/string.h"
 #include "pagespeed/kernel/base/string_writer.h"
 #include "pagespeed/kernel/base/time_util.h"
-#include "pagespeed/kernel/base/stack_buffer.h"
+#include "pagespeed/kernel/http/content_type.h"
+#include "pagespeed/kernel/http/google_url.h"
+#include "pagespeed/kernel/http/query_params.h"
+#include "pagespeed/kernel/html/html_keywords.h"
+#include "pagespeed/kernel/thread/pthread_shared_mem.h"
+#include "pagespeed/kernel/util/gzip_inflater.h"
+#include "pagespeed/kernel/util/statistics_logger.h"
+#include "pagespeed/system/in_place_resource_recorder.h"
+#include "pagespeed/system/system_caches.h"
 #include "pagespeed/system/system_request_context.h"
-
+#include "pagespeed/system/system_rewrite_options.h"
+#include "pagespeed/system/system_server_context.h"
+#include "pagespeed/system/system_thread_system.h"
 
 #include <dirent.h>
 
@@ -573,13 +580,17 @@ ats_transform_init(TSCont contp, TransformCtx *ctx)
   // driver->set_pagespeed_query_params(pagespeed_query_params);
   // driver->set_pagespeed_option_cookies(pagespeed_option_cookies);
 
-  net_instaweb::scoped_ptr<ProxyFetchPropertyCallbackCollector> property_callback(ProxyFetchFactory::InitiatePropertyCacheLookup(
-    false /*  is resource fetch?*/, *ctx->gurl, server_context, options, ctx->base_fetch,
-    false /* requires_blink_cohort (no longer unused) */));
+  ProxyFetchPropertyCallbackCollector* property_callback =
+  ProxyFetchFactory::InitiatePropertyCacheLookup(
+      false /* is_resource_fetch */,
+      *ctx->gurl,
+      server_context,
+      options,
+      ctx->base_fetch);
 
   ctx->proxy_fetch = ats_process_context->proxy_fetch_factory()->CreateNewProxyFetch(
-    *(ctx->url_string), ctx->base_fetch, driver, property_callback.release(), NULL /* original_content_fetch */);
-
+    *(ctx->url_string), ctx->base_fetch, driver, property_callback, NULL /* original_content_fetch */);
+  ctx->proxy_fetch->set_trusted_input(true);
   TSHandleMLocRelease(reqp, TS_NULL_MLOC, req_hdr_loc);
   TSHandleMLocRelease(bufp, TS_NULL_MLOC, hdr_loc);
 }
