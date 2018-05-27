@@ -37,8 +37,17 @@
 
 using namespace std;
 
-namespace net_instaweb
-{
+namespace net_instaweb {
+
+namespace {
+  const char kStatisticsPath[] = "StatisticsPath";
+  const char kGlobalStatisticsPath[] = "GlobalStatisticsPath";
+  const char kConsolePath[] = "ConsolePath";
+  const char kMessagesPath[] = "MessagesPath";
+  const char kAdminPath[] = "AdminPath";
+  const char kGlobalAdminPath[] = "GlobalAdminPath";  
+}  // namespace
+
 RewriteOptions::Properties *AtsRewriteOptions::ats_properties_ = NULL;
 
 AtsRewriteOptions::AtsRewriteOptions(ThreadSystem *thread_system) : SystemRewriteOptions(thread_system)
@@ -53,6 +62,7 @@ AtsRewriteOptions::Init()
   InitializeOptions(ats_properties_);
 }
 
+/*
 void
 AtsRewriteOptions::AddProperties()
 {
@@ -60,6 +70,41 @@ AtsRewriteOptions::AddProperties()
   AtsRewriteOptions dummy_config(NULL);
 
   dummy_config.set_default_x_header_value(MOD_PAGESPEED_VERSION_STRING "-" LASTCHANGE_STRING);
+}*/
+
+void AtsRewriteOptions::AddProperties() {
+  // ats-specific options.
+  add_ats_option(
+      "", &AtsRewriteOptions::statistics_path_, "nsp", kStatisticsPath,
+      kServerScope, "Set the statistics path. Ex: /ngx_pagespeed_statistics",
+      false);
+  add_ats_option(
+      "", &AtsRewriteOptions::global_statistics_path_, "ngsp",
+      kGlobalStatisticsPath, kProcessScopeStrict,
+      "Set the global statistics path. Ex: /ngx_pagespeed_global_statistics",
+      false);
+  add_ats_option(
+      "", &AtsRewriteOptions::console_path_, "ncp", kConsolePath, kServerScope,
+      "Set the console path. Ex: /pagespeed_console", false);
+  add_ats_option(
+      "", &AtsRewriteOptions::messages_path_, "nmp", kMessagesPath,
+      kServerScope, "Set the messages path.  Ex: /ngx_pagespeed_message",
+      false);
+  add_ats_option(
+      "", &AtsRewriteOptions::admin_path_, "nap", kAdminPath,
+      kServerScope, "Set the admin path.  Ex: /pagespeed_admin", false);
+  add_ats_option(
+      "", &AtsRewriteOptions::global_admin_path_, "ngap", kGlobalAdminPath,
+      kProcessScopeStrict,
+      "Set the global admin path.  Ex: /pagespeed_global_admin",
+      false);
+
+  MergeSubclassProperties(ats_properties_);
+
+  // Default properties are global but to set them the current API requires
+  // a RewriteOptions instance and we're in a static method.
+  AtsRewriteOptions dummy_config(NULL);
+  dummy_config.set_default_x_header_value(kModPagespeedVersion);
 }
 
 void

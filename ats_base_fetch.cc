@@ -105,7 +105,7 @@ AtsBaseFetch::HandleHeadersComplete()
   // oschaaf: ATS will currently send its response headers
   // earlier than this will fire. So this has become a no-op.
   // This implies that we can't support convert_meta_tags
-  TSDebug("ats-speed", "HeadersComplete()!");
+  TSDebug("ats_pagespeed", "HeadersComplete()!");
   // For resource fetches, we need to output the headers in raw HTTP format.
   if (is_resource_fetch_ || is_ipro_) {
     GoogleMessageHandler mh;
@@ -121,7 +121,7 @@ void
 AtsBaseFetch::ForwardData(const StringPiece &sp, bool reenable, bool last)
 {
   if (is_ipro_) {
-    TSDebug("ats-speed", "ipro forwarddata: %.*s", (int)sp.size(), sp.data());
+    TSDebug("ats_pagespeed", "ipro forwarddata: %.*s", (int)sp.size(), sp.data());
     buffer_.append(sp.data(), sp.size());
     return;
   }
@@ -162,20 +162,20 @@ AtsBaseFetch::HandleDone(bool success)
 
   // TODO(oschaaf): what about no success?
   if (is_ipro_) {
-    TSDebug("ats-speed", "ipro lookup base fetch done()");
+    TSDebug("ats_pagespeed", "ipro lookup base fetch done()");
     done_called_ = true;
 
     int status_code = response_headers()->status_code();
     bool status_ok  = (status_code != 0) && (status_code < 400);
     if (status_code == CacheUrlAsyncFetcher::kNotInCacheStatus) {
-      TSDebug("ats-speed", "ipro lookup base fetch -> not found in cache");
+      TSDebug("ats_pagespeed", "ipro lookup base fetch -> not found in cache");
       ctx_->record_in_place = true;
       TSHttpTxnReenable(ctx_->txn, TS_EVENT_HTTP_CONTINUE);
       ctx_ = NULL;
       DecrefAndDeleteIfUnreferenced();
       return;
     } else if (!status_ok) {
-      TSDebug("ats-speed", "ipro lookup base fetch -> ipro cache entry says not applicable");
+      TSDebug("ats_pagespeed", "ipro lookup base fetch -> ipro cache entry says not applicable");
       TSHttpTxnReenable(ctx_->txn, TS_EVENT_HTTP_CONTINUE);
       ctx_ = NULL;
       DecrefAndDeleteIfUnreferenced();
@@ -219,7 +219,7 @@ AtsBaseFetch::HandleDone(bool success)
     return;
   }
 
-  TSDebug("ats-speed", "Done()!");
+  TSDebug("ats_pagespeed", "Done()!");
   CHECK(!done_called_);
   CHECK(downstream_vio_);
   Lock();

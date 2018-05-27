@@ -207,7 +207,7 @@ AtsConfig::Parse(const char *path)
       }
     }
     if (msg.size() > 0) {
-      TSDebug("ats-speed", "Error parsing line [%s]: [%s]", line.c_str(), msg.c_str());
+      TSDebug("ats_pagespeed", "Error parsing line [%s]: [%s]", line.c_str(), msg.c_str());
     }
   }
 

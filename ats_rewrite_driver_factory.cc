@@ -76,6 +76,8 @@ AtsRewriteDriverFactory::AtsRewriteDriverFactory(const ProcessContext &process_c
   SystemRewriteOptions *system_options = dynamic_cast<SystemRewriteOptions *>(default_options());
   system_options->set_log_dir("/tmp/ps_log/");
   system_options->set_statistics_logging_enabled(true);
+  ExternalClusterSpec spec = {{ExternalServerSpec("127.0.0.1", 11211)}};
+  system_options->set_memcached_servers(spec);
 
   system_options->set_file_cache_clean_inode_limit(500000);
   system_options->set_file_cache_clean_size_kb(1024 * 10000); // 10 GB

@@ -88,7 +88,7 @@ shutdown(TSCont cont, InterceptCtx *intercept_ctx)
 int
 resource_intercept(TSCont cont, TSEvent event, void *edata)
 {
-  TSDebug("ats-speed", "resource_intercept event: %d", (int)event);
+  TSDebug("ats_pagespeed", "resource_intercept event: %d", (int)event);
   InterceptCtx *intercept_ctx = static_cast<InterceptCtx *>(TSContDataGet(cont));
   bool shutDown               = false;
 
@@ -169,7 +169,7 @@ resource_intercept(TSCont cont, TSEvent event, void *edata)
     } else {
       int64_t numBytesToWrite, numBytesWritten;
       numBytesToWrite = intercept_ctx->response->size();
-      TSDebug("ats-speed", "resource intercept writing out a %d bytes response", (int)numBytesToWrite);
+      TSDebug("ats_pagespeed", "resource intercept writing out a %d bytes response", (int)numBytesToWrite);
       numBytesWritten = TSIOBufferWrite(intercept_ctx->resp_buffer, intercept_ctx->response->c_str(), numBytesToWrite);
 
       if (numBytesWritten == numBytesToWrite) {

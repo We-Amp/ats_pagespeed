@@ -598,7 +598,7 @@ ats_transform_init(TSCont contp, TransformCtx *ctx)
 static void
 ats_transform_one(TransformCtx *ctx, TSIOBufferReader upstream_reader, int amount)
 {
-  TSDebug("ats-speed", "transform_one()");
+  TSDebug("ats_pagespeed", "transform_one()");
   TSIOBufferBlock downstream_blkp;
   const char *upstream_buffer;
   int64_t upstream_length;
@@ -620,7 +620,7 @@ ats_transform_one(TransformCtx *ctx, TSIOBufferReader upstream_reader, int amoun
       upstream_length = amount;
     }
 
-    TSDebug("ats-speed", "transform!");
+    TSDebug("ats_pagespeed", "transform!");
     // TODO(oschaaf): use at least the message handler from the server conrtext here?
     if (ctx->inflater == NULL) {
       if (ctx->recorder != NULL) {
@@ -661,12 +661,13 @@ ats_transform_finish(TransformCtx *ctx)
   if (ctx->state == transform_state_output) {
     ctx->state = transform_state_finished;
     if (ctx->recorder != NULL) {
-      TSDebug("ats-speed", "ipro recording finished");
+      TSDebug("ats_pagespeed", "ipro recording finished");
+      TSDebug("ats_pagespeed", "%s", ctx->ipro_response_headers->ToString().c_str());
       //TODO(kspoelstra): we've always finished our resource successfully, right? right?
       ctx->recorder->DoneAndSetHeaders(ctx->ipro_response_headers,true);
       ctx->recorder = NULL;
     } else {
-      TSDebug("ats-speed", "proxy fetch finished");
+      TSDebug("ats_pagespeed", "proxy fetch finished");
       ctx->proxy_fetch->Done(true);
       ctx->proxy_fetch = NULL;
     }
@@ -736,7 +737,7 @@ ats_transform_do(TSCont contp)
 static int
 ats_pagespeed_transform(TSCont contp, TSEvent event, void * /* edata ATS_UNUSED */)
 {
-  TSDebug("ats-speed", "ats_pagespeed_transform()");
+  TSDebug("ats_pagespeed", "ats_pagespeed_transform()");
   if (TSVConnClosedGet(contp)) {
     // ats_ctx_destroy((TransformCtx*)TSContDataGet(contp));
     TSContDestroy(contp);
@@ -773,10 +774,10 @@ ats_pagespeed_transform_add(TSHttpTxn txnp)
   TransformCtx *ctx = get_transaction_context(txnp);
   CHECK(ctx);
   if (ctx->transform_added) { // Happens with a stale cache hit
-    TSDebug("ats-speed", "transform not added due to already being added");
+    TSDebug("ats_pagespeed", "transform not added due to already being added");
     return;
   } else {
-    TSDebug("ats-speed", "transform added");
+    TSDebug("ats_pagespeed", "transform added");
     ctx->transform_added = true;
   }
 
@@ -850,7 +851,7 @@ handle_read_request_header(TSHttpTxn txnp)
 
 
       if (!ctx->gurl->IsWebValid()) {
-        TSDebug("ats-speed", "URL != WebValid(): %s", ctx->url_string->c_str());
+        TSDebug("ats_pagespeed", "URL != WebValid(): %s", ctx->url_string->c_str());
       } else {
         const char *method;
         int method_len;
@@ -860,7 +861,7 @@ handle_read_request_header(TSHttpTxn txnp)
         GoogleString user_agent = get_header(reqp, hdr_loc, "User-Agent");
         ctx->user_agent         = new GoogleString(user_agent);
         ctx->server_context     = ats_process_context->server_context();
-        TSDebug("ats-speed", "static asset prefix: %s",
+        TSDebug("ats_pagespeed", "static asset prefix: %s",
                 ((AtsRewriteDriverFactory *)ctx->server_context->factory())->static_asset_prefix().c_str());
         if (user_agent.find(kModPagespeedSubrequestUserAgent) != user_agent.npos) {
           ctx->mps_user_agent = true;
@@ -1123,7 +1124,7 @@ transform_plugin(TSCont contp, TSEvent event, void *edata)
 
     const net_instaweb::ContentType *content_type = net_instaweb::MimeTypeToContentType(s_content_type);
 
-    if (ctx->record_in_place && content_type != NULL) {
+    if (ctx->record_in_place && content_type != NULL && !content_type->IsHtmlLike()) {
       GoogleString cache_url = *ctx->url_string;
       ctx->server_context->rewrite_stats()->ipro_not_in_cache()->Add(1);
       ctx->server_context->message_handler()->Message(kInfo, "Could not rewrite resource in-place "

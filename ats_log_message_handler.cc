@@ -64,7 +64,7 @@ LogMessageHandler(int severity, const char *file, int line, size_t message_start
     message.resize(last_msg_character_index);
   }
 
-  TSDebug("ats-speed-vlog", "[%s] %s", net_instaweb::kModPagespeedVersion, message.c_str());
+  TSDebug("ats_pagespeed-vlog", "[%s] %s", net_instaweb::kModPagespeedVersion, message.c_str());
 
   if (severity == logging::LOG_FATAL) {
     // Crash the process to generate a dump.

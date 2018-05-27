@@ -79,12 +79,55 @@ public:
   virtual OptionSettingResult ParseAndSetOptionFromName1(StringPiece name, StringPiece arg, GoogleString *msg,
                                                          MessageHandler *handler);
 
+  const GoogleString& statistics_path() const {
+    return statistics_path_.value();
+  }
+  const GoogleString& global_statistics_path() const {
+    return global_statistics_path_.value();
+  }
+  const GoogleString& console_path() const {
+    return console_path_.value();
+  }
+  const GoogleString& messages_path() const {
+    return messages_path_.value();
+  }
+  const GoogleString& admin_path() const {
+    return admin_path_.value();
+  }
+  const GoogleString& global_admin_path() const {
+    return global_admin_path_.value();
+  }
 private:
   bool SetBoolFlag(bool *v, StringPiece arg);
+  // Keeps the properties added by this subclass.  These are merged into
+  // RewriteOptions::all_properties_ during Initialize().
+  //
+  // RewriteOptions uses static initialization to reduce memory usage and
+  // construction time.  All AtsRewriteOptions instances will have the same
+  // Properties, so we can build the list when we initialize the first one.
   static Properties *ats_properties_;
   static void AddProperties();
   void Init();
 
+  // Add an option to ats_properties_
+  template<class OptionClass>
+  static void add_ats_option(typename OptionClass::ValueType default_value,
+                             OptionClass AtsRewriteOptions::*offset,
+                             const char* id,
+                             StringPiece option_name,
+                             OptionScope scope,
+                             const char* help,
+                             bool safe_to_print) {
+    AddProperty(default_value, offset, id, option_name, scope, help,
+                safe_to_print, ats_properties_);
+  }
+  Option<GoogleString> statistics_path_;
+  Option<GoogleString> global_statistics_path_;
+  Option<GoogleString> console_path_;
+  Option<GoogleString> messages_path_;
+  Option<GoogleString> admin_path_;
+  Option<GoogleString> global_admin_path_;
+  
   bool IsDirective(StringPiece config_directive, StringPiece compare_directive);
 
   DISALLOW_COPY_AND_ASSIGN(AtsRewriteOptions);

@@ -70,7 +70,7 @@ AtsMessageHandler::MessageVImpl(MessageType type, const char *msg, va_list args)
 {
   GoogleString formatted_message = Format(msg, args);
 
-  TSDebug("ats-speed", "[%s %s] %s", kModuleName, kModPagespeedVersion, formatted_message.c_str());
+  TSDebug("ats_pagespeed", "[%s %s] %s", kModuleName, kModPagespeedVersion, formatted_message.c_str());
 
   // Prepare a log message for the SharedCircularBuffer only.
   // Prepend time and severity to message.
@@ -98,7 +98,7 @@ void
 AtsMessageHandler::FileMessageVImpl(MessageType type, const char *file, int line, const char *msg, va_list args)
 {
   GoogleString formatted_message = Format(msg, args);
-  TSDebug("ats-speed", "[%s %s] %s:%d:%s", kModuleName, kModPagespeedVersion, file, line, formatted_message.c_str());
+  TSDebug("ats_pagespeed", "[%s %s] %s:%d:%s", kModuleName, kModPagespeedVersion, file, line, formatted_message.c_str());
 }
 
 // TODO(sligocki): It'd be nice not to do so much string copying.
