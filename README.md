@@ -47,6 +47,6 @@ pagespeed EnableFilters combine_javascript,combine_css
 
 You can view debug output of the plugin using `traffic_server -T ".*speed.*"`
 
-The current state compiles against PSOL 1.11.33.4-stable
+The current state compiles against PSOL 1.13.35.2-stable
 
 
