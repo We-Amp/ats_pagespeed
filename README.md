@@ -1,5 +1,3 @@
-![ScreenShot](http://www.atsspeed.com/images/xATSSPEED_logo_plusshout_728x91.png.pagespeed.ic.8mRpu2PXS0.png
-)
 Apache Traffic Server web content optimization plugin powered by Google PageSpeed
 
 http://www.atspagespeed.com/
@@ -20,7 +18,7 @@ There are some hard-coded things in the plugin, these directories should exist:
 - /tmp/ps_log/ to exist
 - /tmp/ats_ps/ to exist
 
-Configuration files go into `/usr/local/etc/trafficserver/psol.`
+Configuration files go into `/ats-conf-dir/psol.`
 That folder is monitored, and changes to files in there are picked
 up immediately. A sample configuration:
 
@@ -45,7 +43,7 @@ pagespeed EnableFilters prioritize_critical_css,rewrite_css
 pagespeed EnableFilters combine_javascript,combine_css
 ```
 
-You can view debug output of the plugin using `traffic_server -T ".*speed.*"`
+You can view debug output of the plugin using `traffic_server -T ats_pagespeed`
 
 The current state compiles against PSOL 1.13.35.2-stable
 
