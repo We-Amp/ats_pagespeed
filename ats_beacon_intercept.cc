@@ -87,7 +87,7 @@ struct InterceptCtx {
 
   bool init(TSVConn vconn);
 
-  void setupWrite();
+  void setupWrite(int cl);
 
   ~InterceptCtx()
   {
@@ -130,12 +130,12 @@ InterceptCtx::init(TSVConn vconn)
 }
 
 void
-InterceptCtx::setupWrite()
+InterceptCtx::setupWrite(int cl)
 {
   TSAssert(output.buffer == 0);
   output.buffer = TSIOBufferCreate();
   output.reader = TSIOBufferReaderAlloc(output.buffer);
-  output.vio    = TSVConnWrite(net_vc, contp, output.reader, INT_MAX);
+  output.vio    = TSVConnWrite(net_vc, contp, output.reader, cl);
 }
 
 // Parses out query params from the request.
@@ -235,25 +235,17 @@ handleRead(InterceptCtx *cont_data, bool &read_complete)
 static bool
 processRequest(InterceptCtx *cont_data)
 {
-  // OS: Looks like on 5.x we sometimes receive read complete / EOS events twice,
-  // which needs looking into. Probably this intercept is doing something it shouldn't
+  // Should no longer happen
   if (cont_data->output.buffer) {
     TSDebug("ats_pagespeed", "Received read complete / EOS twice?!");
     return true;
   }
-  string reply_header("HTTP/1.1 204 No Content\r\n");
+  string reply_header("HTTP/1.1 200 OK\r\nContent-Length: 2\r\nCache-Control: no-cache\r\n\r\nOK");
   int body_size = static_cast<int>(cont_data->body.size());
   if (cont_data->req_content_len != body_size) {
     TSError("[ats_beacon_intercept][%s] Read only %d bytes of body; expecting %d bytes", __FUNCTION__, body_size,
             cont_data->req_content_len);
   }
-
-  char buf[64];
-  // snprintf(buf, 64, "%s: %d\r\n\r\n", TS_MIME_FIELD_CONTENT_LENGTH, body_size);
-  snprintf(buf, 64, "%s: %d\r\n\r\n", TS_MIME_FIELD_CONTENT_LENGTH, 0);
-  reply_header.append(buf);
-  reply_header.append("Cache-Control: max-age=0, no-cache");
-  // TSError("[%s] reply header: \n%s", __FUNCTION__, reply_header.data());
 
   StringPiece query_param_beacon_data;
   ps_query_params_handler(cont_data->request_context->url_string->c_str(), &query_param_beacon_data);
@@ -273,20 +265,15 @@ processRequest(InterceptCtx *cont_data)
     TSDebug(DEBUG_TAG, "Beacon post data processed OK: [%s]", beacon_data.c_str());
   }
 
-  cont_data->setupWrite();
+  cont_data->setupWrite(2 /*'OK'*/);
   if (TSIOBufferWrite(cont_data->output.buffer, reply_header.data(), reply_header.size()) == TS_ERROR) {
     TSError("[ats_beacon_intercept][%s] Error while writing reply header", __FUNCTION__);
     return false;
   }
-  /*
-  if (TSIOBufferWrite(cont_data->output.buffer, cont_data->body.data(), body_size) == TS_ERROR) {
-    TSError("[%s] Error while writing content", __FUNCTION__);
-    return false;
-    }*/
-  int total_bytes_written = reply_header.size() + body_size;
+
+  int total_bytes_written = reply_header.size();// + body_size;
   TSDebug(DEBUG_TAG, "[%s] Wrote reply of size %d", __FUNCTION__, total_bytes_written);
   TSVIONBytesSet(cont_data->output.vio, total_bytes_written);
-
   TSVIOReenable(cont_data->output.vio);
   return true;
 }
