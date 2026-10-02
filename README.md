@@ -1,3 +1,27 @@
+# ats_pagespeed
+
+> **This repository is archived.** ats_pagespeed was an Apache Traffic Server
+> plugin built on the PageSpeed Optimization Library. It was last changed in 2022
+> and is unmaintained. PageSpeed itself is maintained again as
+> [mod_pagespeed 2.1](https://github.com/We-Amp/mod_pagespeed), open source under
+> the Apache License 2.0, with nginx, Apache httpd, IIS and Envoy integrations.
+> That tree has no Apache Traffic Server integration.
+
+## Where to go
+
+| | |
+|---|---|
+| **Maintained source tree** (nginx, Apache httpd, IIS, Envoy) | [We-Amp/mod_pagespeed →](https://github.com/We-Amp/mod_pagespeed) |
+| **Proxy-style deployment** | [Envoy integration (experimental) →](https://github.com/We-Amp/mod_pagespeed/blob/master/docs/install-envoy.md) or the [Docker reverse-proxy images →](https://modpagespeed.com/docs/installation-docker/) |
+| **Documentation** | [modpagespeed.com/docs →](https://modpagespeed.com/docs/) |
+| **Report a bug or ask a question** | [Open an issue →](https://github.com/We-Amp/mod_pagespeed/issues) |
+
+The sources stay here, read-only, for reference.
+
+---
+
+## Historical README (unmaintained)
+
 Apache Traffic Server web content optimization plugin powered by Google PageSpeed
 
 To build, a simple 'make' should work. Use 'sudo make install' to install.
